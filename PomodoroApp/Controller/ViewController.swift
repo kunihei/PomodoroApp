@@ -32,6 +32,7 @@ class ViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "timer"{
             let timerVC = segue.destination as! TimerViewController
+            timerVC.setTimer = setTimer
         }
     }
     
