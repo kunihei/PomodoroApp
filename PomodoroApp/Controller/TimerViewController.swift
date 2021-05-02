@@ -10,6 +10,7 @@ import AudioToolbox
 
 private var vibrationCount = 4
 private var soundIdString:SystemSoundID = 1304
+private var intervalSoundIdString:SystemSoundID = 1308
 
 class TimerViewController: UIViewController {
 
@@ -72,17 +73,6 @@ class TimerViewController: UIViewController {
             timer.invalidate()
             
             AudioServicesPlayAlertSound(systemSoundID)
-            
-            vibrationCount = 4
-            
-            AudioServicesAddSystemSoundCompletion(systemSoundID, nil, nil, { (systemSoundID, nil) -> Void in
-                vibrationCount -= 1
-                
-                if ( vibrationCount > 0 ) {
-                    // 繰り返し再生
-                    AudioServicesPlaySystemSound(systemSoundID)
-                }
-            }, nil)
             if let soundUrl = CFBundleCopyResourceURL(CFBundleGetMainBundle(), nil, nil, nil){
                 AudioServicesCreateSystemSoundID(soundUrl, &soundIdString)
                 AudioServicesPlaySystemSound(soundIdString)
@@ -108,10 +98,11 @@ class TimerViewController: UIViewController {
         if(interval == 0 && intervalsec == 0){
             intervalLabel.text = "作業を再開して下さい！"
             timer.invalidate()
+            
             AudioServicesPlayAlertSound(systemSoundID)
             if let soundUrl = CFBundleCopyResourceURL(CFBundleGetMainBundle(), nil, nil, nil){
-                AudioServicesCreateSystemSoundID(soundUrl, &soundIdString)
-                AudioServicesPlaySystemSound(soundIdString)
+                AudioServicesCreateSystemSoundID(soundUrl, &intervalSoundIdString)
+                AudioServicesPlaySystemSound(intervalSoundIdString)
             }
             setTimer = UserDefaults.standard.object(forKey: "setTimer") as! Int
             timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(countDown), userInfo: nil, repeats: true)
@@ -122,6 +113,7 @@ class TimerViewController: UIViewController {
     
     @IBAction func stopButton(_ sender: Any) {
         timer.invalidate()
+        AudioServicesRemoveSystemSoundCompletion(systemSoundID)
     }
     
     @IBAction func backButton(_ sender: Any) {
